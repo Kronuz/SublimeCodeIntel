@@ -18,6 +18,14 @@ from .types import Settings
 TCP_CONNECT_TIMEOUT = 5
 
 
+def ordereddict_to_dict(value: 'Dict[str, Any]'):
+    value = dict(value)
+    for k, v in value.items():
+        if isinstance(v, dict):
+            value[k] = ordereddict_to_dict(v)
+    return value
+
+
 def format_request(payload: 'Dict[str, Any]'):
     """Converts the request into json and adds the Content-Length header"""
     content = json.dumps(payload, sort_keys=False)
@@ -84,7 +92,9 @@ class Client(object):
 
     def send_request(self, request: Request, handler: 'Callable', error_handler: 'Optional[Callable]' = None):
         self.request_id += 1
-        debug(' --> ' + request.method)
+        debug(' >>> ' + request.method)
+        if self.settings.log_payloads and request.params:
+            debug(' --> ' + str(ordereddict_to_dict(request.params)))
         if handler is not None:
             self._response_handlers[self.request_id] = handler
         if error_handler is not None:
@@ -92,7 +102,9 @@ class Client(object):
         self.send_payload(request.to_payload(self.request_id))
 
     def send_notification(self, notification: Notification):
-        debug(' --> ' + notification.method)
+        debug(' >>> ' + notification.method)
+        if self.settings.log_payloads and notification.params:
+            debug(' --> ' + str(ordereddict_to_dict(notification.params)))
         self.send_payload(notification.to_payload())
 
     def exit(self):
@@ -158,7 +170,7 @@ class Client(object):
         if 'result' in response and 'error' not in response:
             result = response['result']
             if self.settings.log_payloads:
-                debug('     ' + str(result))
+                debug(' <-- ' + str(result))
             if handler_id in self._response_handlers:
                 self._response_handlers[handler_id](result)
             else:
@@ -166,13 +178,13 @@ class Client(object):
         elif 'error' in response and 'result' not in response:
             error = response['error']
             if self.settings.log_payloads:
-                debug('     ' + str(error))
+                debug(' <-- ' + str(error))
             if handler_id in self._error_handlers:
                 self._error_handlers[handler_id](error)
             else:
                 self._error_display_handler(error.get("message"))
         else:
-            debug('invalid response payload', response)
+            debug(' <-- [invalid response payload]', response)
 
     def on_request(self, request_method: str, handler: 'Callable'):
         self._request_handlers[request_method] = handler
@@ -183,9 +195,9 @@ class Client(object):
     def request_handler(self, request):
         params = request.get("params")
         method = request.get("method")
-        debug('<--  ' + method)
+        debug(' <<< ' + method)
         if self.settings.log_payloads and params:
-            debug('     ' + str(params))
+            debug(' <-- ' + str(params))
         if method in self._request_handlers:
             try:
                 self._request_handlers[method](params)
@@ -198,9 +210,9 @@ class Client(object):
         method = notification.get("method")
         params = notification.get("params")
         if method != "window/logMessage":
-            debug('<--  ' + method)
+            debug(' <<< ' + method)
             if self.settings.log_payloads and params:
-                debug('     ' + str(params))
+                debug(' <-- ' + str(params))
         if method in self._notification_handlers:
             try:
                 self._notification_handlers[method](params)
