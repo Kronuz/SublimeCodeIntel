@@ -135,9 +135,7 @@ def read_client_config(name, client_config):
         name,
         client_config.get("command", []),
         client_config.get("tcp_port", None),
-        client_config.get("scopes", []),
-        client_config.get("syntaxes", []),
-        client_config.get("languageId", ""),
+        client_config.get("languages", dict()),
         client_config.get("enabled", True),
         client_config.get("initializationOptions", dict()),
         client_config.get("settings", dict()),
@@ -157,7 +155,7 @@ def read_client_configs(client_settings, default_client_settings=None) -> 'List[
             client_with_defaults.update(client_config)
 
             config = read_client_config(client_name, client_with_defaults)
-            if config and config.scopes:  # don't return configs only containing "enabled" here.
+            if config and config.languages:  # don't return configs only containing "enabled" here.
                 parsed_configs.append(config)
         return parsed_configs
     else:
