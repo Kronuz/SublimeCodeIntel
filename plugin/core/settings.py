@@ -89,7 +89,6 @@ class ClientConfigs(object):
         self.all.extend(self._external_configs)
 
     def add_external_config(self, config: ClientConfig):
-        print('adding ', config.name)
         if config.name in self._global_settings:
             config.apply_settings(self._global_settings[config.name])
         self._external_configs.append(config)
