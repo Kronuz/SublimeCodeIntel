@@ -166,7 +166,7 @@ def handle_session_started(session, window, project_path, config):
     client.send_notification(Notification.initialized())
     if config.settings:
         configParams = {
-            'settings': config.settings
+            'settings': config.get_settings(window)
         }
         client.send_notification(Notification.didChangeConfiguration(configParams))
 

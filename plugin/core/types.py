@@ -76,3 +76,9 @@ class ClientConfig(object):
             self.settings = settings.get("settings", dict())
         if "env" in settings:
             self.env = settings.get("env", dict())
+
+    def get_settings(self, window):
+        return self.settings
+
+    def get_language_id(self, view):
+        return self.languageId
