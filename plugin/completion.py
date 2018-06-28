@@ -19,6 +19,35 @@ from .core.documents import get_document_position, purge_did_change
 NO_COMPLETION_SCOPES = 'comment, string'
 completion_item_kind_names = {v: k for k, v in CompletionItemKind.__dict__.items()}
 
+completion_item_kind_icons = {
+    None: "💭",
+    1: "📝",  # Text
+    2: "⚙",  # Method
+    3: "⚙",  # Function
+    4: "⚙",  # Constructor
+    5: "🏷",  # Field
+    6: "🏷",  # Variable
+    7: "🗳",  # Class
+    8: "◻️",  # Interface
+    9: "📦",  # Module
+    10: "🔧",  # Property
+    11: "◼️",  # Unit
+    12: "🔹",  # Value
+    13: "🗂",  # Enum
+    14: "🔅",  # Keyword
+    15: "💊",  # Snippet
+    16: "🎨",  # Color
+    17: "📄",  # File
+    18: "🔸",  # Reference
+    19: "📁",  # Folder
+    20: "🔹",  # EnumMember
+    21: "⚓",  # Constant
+    22: "🗳",  # Struct
+    23: "🗓",  # Event
+    24: "⚙",  # Operator
+    25: "🏷",  # TypeParameter
+}
+
 
 class CompletionState(object):
     IDLE = 0
@@ -229,18 +258,18 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
     def format_completion(self, item: dict) -> 'Tuple[str, str]':
         # Sublime handles snippets automatically, so we don't have to care about insertTextFormat.
         label = item["label"]
+        kind = item.get("kind")
+        icon = completion_item_kind_icons.get(kind) or completion_item_kind_icons[None]
         # choose hint based on availability and user preference
         hint = None
         if settings.completion_hint_type == "auto":
             hint = item.get("detail")
             if not hint:
-                kind = item.get("kind")
                 if kind:
                     hint = completion_item_kind_names[kind]
         elif settings.completion_hint_type == "detail":
             hint = item.get("detail")
         elif settings.completion_hint_type == "kind":
-            kind = item.get("kind")
             if kind:
                 hint = completion_item_kind_names.get(kind)
         # label is an alternative for insertText if neither textEdit nor insertText is provided
@@ -248,7 +277,7 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
         if len(insert_text) > 0 and insert_text[0] == '$':  # sublime needs leading '$' escaped.
             insert_text = '\\$' + insert_text[1:]
         # only return label with a hint if available
-        return "\t  ".join((label, hint)) if hint else label, insert_text
+        return "\t  ".join((icon + " " + label, hint)) if hint else icon + " " + label, insert_text
 
     def text_edit_text(self, item) -> 'Optional[str]':
         # try to handle textEdit if present
