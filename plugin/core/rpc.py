@@ -80,10 +80,10 @@ class Client(object):
         self.transport = transport
         self.transport.start(self.receive_payload, self.on_transport_closed)
         self.request_id = 0
-        self._response_handlers = {}  # type: Dict[int, Callable]
-        self._error_handlers = {}  # type: Dict[int, Callable]
-        self._request_handlers = {}  # type: Dict[str, Callable]
-        self._notification_handlers = {}  # type: Dict[str, Callable]
+        self._response_handlers = {}  # type: Dict[int, List[Callable]]
+        self._error_handlers = {}  # type: Dict[int, List[Callable]]
+        self._request_handlers = {}  # type: Dict[str, List[Callable]]
+        self._notification_handlers = {}  # type: Dict[str, List[Callable]]
         self.exiting = False
         self._crash_handler = None  # type: Optional[Callable]
         self._transport_fail_handler = None  # type: Optional[Callable]
@@ -96,9 +96,9 @@ class Client(object):
         if self.settings.log_payloads and request.params:
             debug(' --> ' + str(ordereddict_to_dict(request.params)))
         if handler is not None:
-            self._response_handlers[self.request_id] = handler
+            self._response_handlers.setdefault(self.request_id, []).append(handler)
         if error_handler is not None:
-            self._error_handlers[self.request_id] = error_handler
+            self._error_handlers.setdefault(self.request_id, []).append(error_handler)
         self.send_payload(request.to_payload(self.request_id))
 
     def send_notification(self, notification: Notification):
@@ -172,7 +172,8 @@ class Client(object):
             if self.settings.log_payloads:
                 debug(' <-- ' + str(result))
             if handler_id in self._response_handlers:
-                self._response_handlers[handler_id](result)
+                for handler in self._response_handlers[handler_id]:
+                    handler(result)
             else:
                 debug("No handler found for id " + str(response.get("id")))
         elif 'error' in response and 'result' not in response:
@@ -180,17 +181,18 @@ class Client(object):
             if self.settings.log_payloads:
                 debug(' <-- ' + str(error))
             if handler_id in self._error_handlers:
-                self._error_handlers[handler_id](error)
+                for handler in self._error_handlers[handler_id]:
+                    handler(error)
             else:
                 self._error_display_handler(error.get("message"))
         else:
             debug(' <-- [invalid response payload]', response)
 
     def on_request(self, request_method: str, handler: 'Callable'):
-        self._request_handlers[request_method] = handler
+        self._request_handlers.setdefault(request_method, []).append(handler)
 
     def on_notification(self, notification_method: str, handler: 'Callable'):
-        self._notification_handlers[notification_method] = handler
+        self._notification_handlers.setdefault(notification_method, []).append(handler)
 
     def request_handler(self, request):
         params = request.get("params")
@@ -199,10 +201,11 @@ class Client(object):
         if self.settings.log_payloads and params:
             debug(' <-- ' + str(params))
         if method in self._request_handlers:
-            try:
-                self._request_handlers[method](params)
-            except Exception as err:
-                exception_log("Error handling request " + method, err)
+            for handler in self._request_handlers[method]:
+                try:
+                    handler(params)
+                except Exception as err:
+                    exception_log("Error handling request " + method, err)
         else:
             debug("Unhandled request", method)
 
@@ -214,9 +217,10 @@ class Client(object):
             if self.settings.log_payloads and params:
                 debug(' <-- ' + str(params))
         if method in self._notification_handlers:
-            try:
-                self._notification_handlers[method](params)
-            except Exception as err:
-                exception_log("Error handling notification " + method, err)
+            for handler in self._notification_handlers[method]:
+                try:
+                    handler(params)
+                except Exception as err:
+                    exception_log("Error handling notification " + method, err)
         else:
             debug("Unhandled notification:", method)
