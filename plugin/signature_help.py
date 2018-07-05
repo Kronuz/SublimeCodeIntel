@@ -20,6 +20,8 @@ from .core.logging import debug
 from .core.popups import popup_css, popup_class
 from .core.settings import settings
 
+NO_SIGNATURE_HELP_SCOPES = 'comment, string'
+
 
 class SignatureHelpListener(sublime_plugin.ViewEventListener):
 
@@ -54,21 +56,30 @@ class SignatureHelpListener(sublime_plugin.ViewEventListener):
         self._initialized = True
 
     def on_modified_async(self):
-        pos = self.view.sel()[0].begin()
         # TODO: this will fire too often, narrow down using scopes or regex
         if not self._initialized:
             self.initialize()
 
-        if self._signature_help_triggers:
-            last_char = self.view.substr(pos - 1)
-            if last_char in self._signature_help_triggers:
-                self.request_signature_help(pos)
-            elif self._visible:
-                if last_char.isspace():
-                    # Peek behind to find the last non-whitespace character.
-                    last_char = self.view.substr(self.view.find_by_class(pos, False, ~0) - 1)
-                if last_char not in self._signature_help_triggers:
-                    self.view.hide_popup()
+        if not self._signature_help_triggers:
+            return
+
+        view_sel = self.view.sel()
+        if not view_sel:
+            return
+
+        pos = view_sel[0].begin()
+        if self.view.match_selector(pos, NO_SIGNATURE_HELP_SCOPES):
+            return
+
+        prev_char = self.view.substr(pos - 1)
+        if prev_char in self._signature_help_triggers:
+            self.request_signature_help(pos)
+        elif self._visible:
+            if prev_char.isspace():
+                # Peek behind to find the last non-whitespace character.
+                prev_char = self.view.substr(self.view.find_by_class(pos, False, ~0) - 1)
+            if prev_char not in self._signature_help_triggers:
+                self.view.hide_popup()
 
     def request_signature_help(self, point):
         client = client_for_view(self.view)

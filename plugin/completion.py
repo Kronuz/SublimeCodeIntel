@@ -159,9 +159,9 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
         self.resolve_details = []  # type: List[Tuple[str, str]]
         self.state = CompletionState.IDLE
         self.completions = []  # type: List[Any]
-        self.next_request = None  # type: Optional[Tuple[str, List[int]]]
+        self.next_request = None  # type: Optional[int]
         self.last_prefix = ""
-        self.last_location = 0
+        self.last_pos = 0
 
     @classmethod
     def is_applicable(cls, settings):
@@ -188,55 +188,74 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
             prev_char = self.view.substr(location - 1)
             return prev_char in self.trigger_chars
 
-    def is_same_completion(self, prefix, locations):
-        # completion requests from the same location with the same prefix are cached.
-        current_start = locations[0] - len(prefix)
-        last_start = self.last_location - len(self.last_prefix)
-        return prefix.startswith(self.last_prefix) and current_start == last_start
-
-    def on_modified(self):
-        # hide completion when backspacing past last completion.
-        if self.view.sel()[0].begin() < self.last_location:
-            self.last_location = 0
-            self.view.run_command("hide_auto_complete")
-        # cancel current completion if the previous input is an space
-        prev_char = self.view.substr(self.view.sel()[0].begin() - 1)
-        if self.state == CompletionState.REQUESTING and prev_char.isspace():
-            self.state = CompletionState.CANCELLING
-
-    def on_query_completions(self, prefix, locations):
-        if self.view.match_selector(locations[0], NO_COMPLETION_SCOPES):
-            return (
-                [],
-                sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
-            )
-
+    def on_modified_async(self):
         if not self.initialized:
             self.initialize()
 
-        if self.enabled:
-            reuse_completion = self.is_same_completion(prefix, locations)
-            if self.state == CompletionState.IDLE:
-                if not reuse_completion:
-                    self.last_prefix = prefix
-                    self.last_location = locations[0]
-                    self.do_request(prefix, locations)
-                    self.completions = []
+        if not self.enabled or not self.trigger_chars:
+            return
 
-            elif self.state in (CompletionState.REQUESTING, CompletionState.CANCELLING):
-                self.next_request = (prefix, locations)
+        view_sel = self.view.sel()
+        if not view_sel:
+            return
+
+        pos = view_sel[0].begin()
+        if self.view.match_selector(pos, NO_COMPLETION_SCOPES):
+            return
+
+        prev_char = self.view.substr(pos - 1)
+        if prev_char in self.trigger_chars or prev_char.isspace():
+            # hide completion when backspacing past last completion.
+            if self.last_pos and pos < self.last_pos:
+                self.last_pos = 0
+                self.view.run_command("hide_auto_complete")
+            # cancel current completion if the previous input is an space
+            if self.state == CompletionState.REQUESTING and prev_char.isspace():
                 self.state = CompletionState.CANCELLING
 
-            elif self.state == CompletionState.APPLYING:
-                self.state = CompletionState.IDLE
+            command_history = getattr(self.view, 'command_history', None)
+            if command_history:
+                redo_command = command_history(1)
+                previous_command = self.view.command_history(0)
+                before_previous_command = self.view.command_history(-1)
+            else:
+                redo_command = previous_command = before_previous_command = None
 
+            # print('on_modified', "%r\n\tcommand_history: %r\n\tredo_command: %r\n\tprevious_command: %r\n\tbefore_previous_command: %r" % (prev_char, bool(command_history), redo_command, previous_command, before_previous_command))
+            if not command_history or redo_command[1] is None and (
+                previous_command[0] in ('paste', 'insert_completion') or
+                previous_command[0] == 'insert' and previous_command[1]['characters'][-1] not in ('\n', '\t') or
+                previous_command[0] == 'insert_snippet' and previous_command[1]['contents'] in (
+                    '(${0:$SELECTION})', '[${0:$SELECTION}]', '{${0:$SELECTION}}', '`${0:$SELECTION}`', '"${0:$SELECTION}"', "'${0:$SELECTION}'",
+                    '($0)', '[$0]', '{$0}', '`$0`', '"$0"', "'$0'",
+                ) or
+                before_previous_command[0] in ('paste', 'insert') and (
+                    previous_command[0] == 'commit_completion' or
+                    previous_command[0] == 'insert_completion' or
+                    previous_command[0] == 'insert_best_completion'
+                )
+            ):
+                if self.state == CompletionState.APPLYING:
+                    self.state = CompletionState.IDLE
+
+                if self.state == CompletionState.IDLE:
+                    self.do_request(pos)
+                    self.completions = []
+
+                elif self.state in (CompletionState.REQUESTING, CompletionState.CANCELLING):
+                    self.next_request = pos
+                    self.state = CompletionState.CANCELLING
+
+    def on_query_completions(self, prefix, locations):
+        if self.completions:
             return (
                 self.completions,
                 0 if not settings.only_show_lsp_completions
                 else sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
             )
 
-    def do_request(self, prefix: str, locations: 'List[int]'):
+    def do_request(self, pos: int):
+        self.last_pos = pos
         self.next_request = None
         view = self.view
 
@@ -245,9 +264,9 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
         if not client:
             return
 
-        if settings.complete_all_chars or self.is_after_trigger_character(locations[0]):
+        if settings.complete_all_chars or self.is_after_trigger_character(pos):
             purge_did_change(view.buffer_id())
-            document_position = get_document_position(view, locations[0])
+            document_position = get_document_position(view, pos)
             if document_position:
                 client.send_request(
                     Request.complete(document_position),
@@ -286,7 +305,7 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
             edit_range, edit_text = text_edit.get("range"), text_edit.get("newText")
             if edit_range and edit_text:
                 edit_range = Range.from_lsp(edit_range)
-                last_start = self.last_location - len(self.last_prefix)
+                last_start = self.last_pos - len(self.last_prefix)
                 last_row, last_col = self.view.rowcol(last_start)
                 if last_row == edit_range.start.row == edit_range.end.row and edit_range.start.col <= last_col:
                     # sublime does not support explicit replacement with completion
@@ -321,8 +340,7 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
             self.run_auto_complete()
         elif self.state == CompletionState.CANCELLING:
             if self.next_request:
-                prefix, locations = self.next_request
-                self.do_request(prefix, locations)
+                self.do_request(self.next_request)
         else:
             debug('Got unexpected response while in state {}'.format(self.state))
 
