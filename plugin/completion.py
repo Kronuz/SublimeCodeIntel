@@ -16,7 +16,7 @@ from .core.configurations import is_supported_syntax
 from .core.documents import get_document_position, purge_did_change
 
 
-NO_COMPLETION_SCOPES = 'comment, string'
+NO_COMPLETION_SCOPES = 'comment'
 completion_item_kind_names = {v: k for k, v in CompletionItemKind.__dict__.items()}
 
 completion_item_kind_icons = {

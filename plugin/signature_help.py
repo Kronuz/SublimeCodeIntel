@@ -20,7 +20,7 @@ from .core.logging import debug
 from .core.popups import popup_css, popup_class
 from .core.settings import settings
 
-NO_SIGNATURE_HELP_SCOPES = 'comment, string'
+NO_SIGNATURE_HELP_SCOPES = 'comment'
 
 
 class SignatureHelpListener(sublime_plugin.ViewEventListener):

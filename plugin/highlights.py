@@ -15,7 +15,7 @@ except ImportError:
     pass
 
 SUBLIME_WORD_MASK = 515
-NO_HIGHLIGHT_SCOPES = 'comment, string'
+NO_HIGHLIGHT_SCOPES = 'comment'
 
 _kind2name = {
     DocumentHighlightKind.Unknown: "unknown",
