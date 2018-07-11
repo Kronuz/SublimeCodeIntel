@@ -2,7 +2,17 @@ import sublime
 
 
 class Spinner(object):
+    # From https://github.com/ManrajGrover/py-spinners/blob/master/spinners/spinners.py
     spinners = {
+        "default": {
+            "interval": 100,
+            "frames": [
+                "◐",
+                "◓",
+                "◑",
+                "◒",
+            ],
+        },
         "dots": {
             "interval": 80,
             "frames": [
@@ -81,6 +91,23 @@ class Spinner(object):
                 "🌏 ",
             ],
         },
+        "clock": {
+            "interval": 100,
+            "frames": [
+                "🕛 ",
+                "🕐 ",
+                "🕑 ",
+                "🕒 ",
+                "🕓 ",
+                "🕔 ",
+                "🕕 ",
+                "🕖 ",
+                "🕗 ",
+                "🕘 ",
+                "🕙 ",
+                "🕚 "
+            ]
+        },
         "moon": {
             "interval": 80,
             "frames": [
@@ -108,20 +135,29 @@ class Spinner(object):
             frames = spinner['frames']
             sublime.set_timeout_async(self.animate, interval)
             self.frame = (self.frame + 1) % len(frames)
-            sublime.status_message(frames[self.frame])
-        else:
-            sublime.status_message("")
+            sublime.status_message(self.prefix + " " + frames[self.frame] + " " + self.suffix)
 
-    def start(self, spinner):
-        key = self.key = self.key + 1
-        sublime.set_timeout_async(lambda: self.stop(key), 1000)
-        if self.enabled:
-            self.enabled = spinner
-        else:
-            self.enabled = spinner
-            self.animate()
-
-    def stop(self, key):
+    def deanimate(self, key):
         if self.key == key:
-            self.key = 0
-            self.enabled = False
+            self.stop()
+
+    def start(self, prefix="", suffix="", timeout=1000, spinner='default'):
+        key = self.key = self.key + 1
+        self.prefix = prefix
+        self.suffix = suffix
+        animated, self.enabled = self.enabled, spinner
+        if not animated:
+            self.animate()
+        if timeout > 0:
+            sublime.set_timeout_async(lambda: self.deanimate(key), timeout)
+
+    def stop(self, prefix="", suffix=""):
+        self.key = 0
+        self.prefix = prefix
+        self.suffix = suffix
+        animated, self.enabled = self.enabled, False
+        if animated:
+            sublime.status_message(self.prefix + " " + self.suffix)
+
+
+spinner = Spinner()

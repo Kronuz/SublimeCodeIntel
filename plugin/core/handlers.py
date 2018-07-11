@@ -1,6 +1,5 @@
 import abc
 from .settings import ClientConfig
-from .spinner import Spinner
 # from .rpc import Client
 try:
     from typing import List, Callable, Optional, Type
@@ -10,8 +9,6 @@ except ImportError:
 
 
 class LanguageHandler(metaclass=abc.ABCMeta):
-    spinner = Spinner()
-
     on_start = None  # type: Optional[Callable]
     on_initialized = None  # type: Optional[Callable]
 
