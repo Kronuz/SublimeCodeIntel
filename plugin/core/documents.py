@@ -59,6 +59,7 @@ class DocumentState:
     def __init__(self, path: str) -> 'None':
         self.path = path
         self.version = 0
+        self.languageId = None
 
     def inc_version(self):
         self.version += 1
@@ -132,12 +133,13 @@ def notify_did_open(view: sublime.View):
         if window and view_file:
             if not has_document_state(window, view_file):
                 ds = get_document_state(window, view_file)
+                ds.languageId = config.get_language_id(view)
                 if settings.show_view_status:
                     view.set_status("lsp_clients", config.name)
                 params = {
                     "textDocument": {
                         "uri": filename_to_uri(view_file),
-                        "languageId": config.get_language_id(view),
+                        "languageId": ds.languageId,
                         "text": view.substr(sublime.Region(0, view.size())),
                         "version": ds.version
                     }
@@ -176,22 +178,37 @@ def notify_did_change(view: sublime.View):
     if window and file_name:
         if view.buffer_id() in pending_buffer_changes:
             del pending_buffer_changes[view.buffer_id()]
-        # config = config_for_scope(view)
+        config = config_for_scope(view)
         client = client_for_view(view)
-        if client:
-            document_state = get_document_state(window, file_name)
+        if client and config:
             uri = filename_to_uri(file_name)
-            params = {
-                "textDocument": {
-                    "uri": uri,
-                    # "languageId": config.get_language_id(view), clangd does not like this field, but no server uses it?
-                    "version": document_state.inc_version(),
-                },
-                "contentChanges": [{
-                    "text": view.substr(sublime.Region(0, view.size()))
-                }]
-            }
-            client.send_notification(Notification.didChange(params))
+            languageId = config.get_language_id(view)
+            ds = get_document_state(window, file_name)
+            if ds.languageId == languageId:
+                params = {
+                    "textDocument": {
+                        "uri": uri,
+                        "version": ds.inc_version(),
+                    },
+                    "contentChanges": [{
+                        "text": view.substr(sublime.Region(0, view.size()))
+                    }]
+                }
+                client.send_notification(Notification.didChange(params))
+            else:
+                # The languageId has changed, reopen file
+                ds.languageId = languageId
+                params = {"textDocument": {"uri": uri}}
+                client.send_notification(Notification.didClose(params))
+                params = {
+                    "textDocument": {
+                        "uri": uri,
+                        "languageId": ds.languageId,
+                        "text": view.substr(sublime.Region(0, view.size())),
+                        "version": ds.inc_version(),
+                    }
+                }
+                client.send_notification(Notification.didOpen(params))
 
 
 document_sync_initialized = False
