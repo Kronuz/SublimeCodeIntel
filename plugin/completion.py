@@ -28,7 +28,7 @@ completion_item_kind_icons = {
     5: "🏷",  # Field
     6: "🏷",  # Variable
     7: "🗳",  # Class
-    8: "◻️",  # Interface
+    8: "🗳",  # Interface
     9: "📦",  # Module
     10: "🔧",  # Property
     11: "◼️",  # Unit
