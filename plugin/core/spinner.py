@@ -157,7 +157,7 @@ class Spinner(object):
         if self.key == key:
             self.stop()
 
-    def start(self, prefix="", suffix="", timeout=1000, spinner='default'):
+    def start(self, prefix="", suffix="", timeout=2000, spinner='default'):
         key = self.key = self.key + 1
         self.prefix = prefix
         self.suffix = suffix
