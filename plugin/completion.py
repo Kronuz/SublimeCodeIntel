@@ -204,7 +204,7 @@ class CompletionHandler(sublime_plugin.ViewEventListener):
             return
 
         prev_char = self.view.substr(pos - 1)
-        if prev_char in self.trigger_chars or prev_char.isspace():
+        if prev_char in self.trigger_chars or prev_char == ' ':
             # hide completion when backspacing past last completion.
             if self.last_pos and pos < self.last_pos:
                 self.last_pos = 0
