@@ -5,7 +5,7 @@ from .core.panels import create_output_panel
 from .core.settings import PLUGIN_NAME
 from .core.clients import client_for_view
 from .core.documents import is_at_word, get_position, get_document_position
-from .core.clients import LspTextCommand
+from .core.clients import CodeIntelTextCommand
 from .core.workspace import get_project_path
 from .core.protocol import Request, Point
 from .core.url import uri_to_filename
@@ -28,7 +28,7 @@ def create_references_panel(window: sublime.Window):
     return panel
 
 
-class LspSymbolReferencesCommand(LspTextCommand):
+class CodeIntelSymbolReferencesCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 
@@ -65,7 +65,7 @@ class LspSymbolReferencesCommand(LspTextCommand):
             panel = ensure_references_panel(window)
             panel.settings().set("result_base_dir", base_dir)
             panel.set_read_only(False)
-            panel.run_command("lsp_clear_panel")
+            panel.run_command("code_intel_clear_panel")
             panel.run_command('append', {
                 'characters': 'References to "' + word + '" at ' + display_path + ':\n'
             })

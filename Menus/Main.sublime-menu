@@ -8,22 +8,30 @@
         "id": "package-settings",
         "children": [
           {
-            "caption": "LSP",
+            "caption": "SublimeCodeIntel",
             "children": [
               {
                 "caption": "Settings",
                 "command": "edit_settings",
                 "args": {
-                  "base_file": "${packages}/LSP/LSP.sublime-settings",
-                  "default": "// Settings in here override those in \"LSP/LSP.sublime-settings\",\n\n{\n\t$0\n}\n"
+                  "base_file": "${packages}/SublimeCodeIntel/SublimeCodeIntel.sublime-settings",
+                  "default": "// Settings in here override those in \"SublimeCodeIntel/SublimeCodeIntel.sublime-settings\",\n\n{\n\t$0\n}\n"
                 }
               },
               {
                 "caption": "Key Bindings",
                 "command": "edit_settings",
                 "args": {
-                  "base_file": "${packages}/LSP/Keymaps/Default (${platform}).sublime-keymap",
+                  "base_file": "${packages}/SublimeCodeIntel/Mappings/Default (${platform}).sublime-keymap",
                   "user_file": "${packages}/User/Default (${platform}).sublime-keymap"
+                }
+              },
+              {
+                "caption": "Mouse Bindings",
+                "command": "edit_settings",
+                "args": {
+                  "base_file": "${packages}/SublimeCodeIntel/Mappings/Default (${platform}).sublime-mousemap",
+                  "user_file": "${packages}/User/Default (${platform}).sublime-mousemap"
                 }
               }
             ]

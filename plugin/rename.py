@@ -1,5 +1,5 @@
 import sublime_plugin
-from .core.clients import LspTextCommand
+from .core.clients import CodeIntelTextCommand
 from .core.clients import client_for_view
 from .core.protocol import Request
 from .core.documents import get_document_position, get_position, is_at_word
@@ -30,7 +30,7 @@ class RenameSymbolInputHandler(sublime_plugin.TextInputHandler):
         return current_name
 
 
-class LspSymbolRenameCommand(LspTextCommand):
+class CodeIntelSymbolRenameCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 
@@ -60,7 +60,7 @@ class LspSymbolRenameCommand(LspTextCommand):
 
     def handle_response(self, response):
         if response:
-            self.view.window().run_command('lsp_apply_workspace_edit',
+            self.view.window().run_command('code_intel_apply_workspace_edit',
                                            {'changes': response.get('changes'),
                                             'documentChanges': response.get('documentChanges')})
         else:

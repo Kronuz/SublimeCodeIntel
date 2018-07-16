@@ -5,7 +5,7 @@ import webbrowser
 
 from .core.configurations import is_supported_syntax
 from .core.diagnostics import get_point_diagnostics
-from .core.clients import LspTextCommand, session_for_view
+from .core.clients import CodeIntelTextCommand, session_for_view
 from .core.protocol import Request, DiagnosticSeverity
 from .core.documents import get_document_position
 from .core.popups import popup_css, popup_class
@@ -26,10 +26,10 @@ class HoverHandler(sublime_plugin.ViewEventListener):
     def on_hover(self, point, hover_zone):
         if hover_zone != sublime.HOVER_TEXT or self.view.is_popup_visible():
             return
-        self.view.run_command("lsp_hover", {"point": point})
+        self.view.run_command("code_intel_hover", {"point": point})
 
 
-class LspHoverCommand(LspTextCommand):
+class CodeIntelHoverCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 
@@ -146,13 +146,13 @@ class LspHoverCommand(LspTextCommand):
 
     def on_hover_navigate(self, href, point):
         if href == 'definition':
-            self.run_command_from_point(point, "lsp_symbol_definition")
+            self.run_command_from_point(point, "code_intel_symbol_definition")
         elif href == 'references':
-            self.run_command_from_point(point, "lsp_symbol_references")
+            self.run_command_from_point(point, "code_intel_symbol_references")
         elif href == 'rename':
-            self.run_command_from_point(point, "lsp_symbol_rename")
+            self.run_command_from_point(point, "code_intel_symbol_rename")
         elif href == 'code-actions':
-            self.run_command_from_point(point, "lsp_code_actions")
+            self.run_command_from_point(point, "code_intel_code_actions")
         else:
             webbrowser.open_new_tab(href)
 

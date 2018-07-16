@@ -24,6 +24,6 @@ def server_log(*args):
     printf(*args, prefix="server")
 
 
-def printf(*args, prefix='LSP'):
+def printf(*args, prefix='SublimeCodeIntel'):
     """Print args to the console, prefixed by the plugin name."""
     print(prefix + ":", *args)

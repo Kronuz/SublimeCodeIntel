@@ -1,7 +1,7 @@
 import sublime
 from .types import Settings, ClientConfig
 
-PLUGIN_NAME = 'LSP'
+PLUGIN_NAME = 'SublimeCodeIntel'
 
 try:
     from typing import List, Optional, Dict
@@ -99,7 +99,7 @@ class ClientConfigs(object):
             client_settings = self._global_settings.setdefault(config_name, {})
             client_settings["enabled"] = is_enabled
             _settings_obj.set("clients", self._global_settings)
-            sublime.save_settings("LSP.sublime-settings")
+            sublime.save_settings("SublimeCodeIntel.sublime-settings")
 
     def enable(self, config_name: str):
         self._set_enabled(config_name, True)
@@ -115,7 +115,7 @@ client_configs = ClientConfigs()
 
 def load_settings():
     global _settings_obj
-    loaded_settings_obj = sublime.load_settings("LSP.sublime-settings")
+    loaded_settings_obj = sublime.load_settings("SublimeCodeIntel.sublime-settings")
     _settings_obj = loaded_settings_obj
     update_settings(settings, loaded_settings_obj)
     client_configs.update(loaded_settings_obj)

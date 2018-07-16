@@ -114,7 +114,7 @@ class SignatureHelpListener(sublime_plugin.ViewEventListener):
                     self._show_popup(point)
 
     def on_query_context(self, key, _, operand, __):
-        if key != "lsp.signature_help":
+        if key != "code_intel.signature_help":
             return False  # Let someone else handle this keybinding.
         elif not self._visible:
             if operand == 0:

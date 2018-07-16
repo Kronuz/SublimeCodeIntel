@@ -26,10 +26,10 @@ diagnostic_severity_names = {
 }
 
 diagnostic_severity_scopes = {
-    DiagnosticSeverity.Error: 'markup.deleted.lsp sublimelinter.mark.error markup.error.lsp',
-    DiagnosticSeverity.Warning: 'markup.changed.lsp sublimelinter.mark.warning markup.warning.lsp',
-    DiagnosticSeverity.Information: 'markup.inserted.lsp sublimelinter.gutter-mark markup.info.lsp',
-    DiagnosticSeverity.Hint: 'markup.inserted.lsp sublimelinter.gutter-mark markup.info.suggestion.lsp'
+    DiagnosticSeverity.Error: 'markup.deleted.code_intel sublimelinter.mark.error markup.error.code_intel',
+    DiagnosticSeverity.Warning: 'markup.changed.code_intel sublimelinter.mark.warning markup.warning.code_intel',
+    DiagnosticSeverity.Information: 'markup.inserted.code_intel sublimelinter.gutter-mark markup.info.code_intel',
+    DiagnosticSeverity.Hint: 'markup.inserted.code_intel sublimelinter.gutter-mark markup.info.suggestion.code_intel'
 }
 
 stylesheet = '''
@@ -90,7 +90,7 @@ def on_phantom_navigate(view: sublime.View, href: str, point: int):
     sel = view.sel()
     sel.clear()
     sel.add(sublime.Region(point))
-    view.run_command("lsp_code_actions")
+    view.run_command("code_intel_code_actions")
 
 
 def create_phantom(view: sublime.View, diagnostic: Diagnostic) -> sublime.Phantom:
@@ -135,7 +135,7 @@ def update_diagnostics_phantoms(view: sublime.View, diagnostics: 'List[Diagnosti
     if phantoms:
         phantom_set = phantom_sets_by_buffer.get(buffer_id)
         if not phantom_set:
-            phantom_set = sublime.PhantomSet(view, "lsp_diagnostics")
+            phantom_set = sublime.PhantomSet(view, "code_intel_diagnostics")
             phantom_sets_by_buffer[buffer_id] = phantom_set
         phantom_set.update(phantoms)
     else:
@@ -143,7 +143,7 @@ def update_diagnostics_phantoms(view: sublime.View, diagnostics: 'List[Diagnosti
 
 
 def update_diagnostics_regions(view: sublime.View, diagnostics: 'List[Diagnostic]', severity: int):
-    region_name = "lsp_" + format_severity(severity)
+    region_name = "code_intel_" + format_severity(severity)
     if settings.show_diagnostics_phantoms and not view.is_dirty():
         regions = None
     else:
@@ -188,7 +188,7 @@ def update_diagnostics_in_status_bar(view: sublime.View):
                                 warnings += 1
 
         count = 'E: {} W: {}'.format(errors, warnings)
-        view.set_status('lsp_errors_warning_count', count)
+        view.set_status('code_intel_errors_warning_count', count)
 
 
 def update_count_in_status_bar(view):
@@ -233,14 +233,14 @@ class DiagnosticsCursorListener(sublime_plugin.ViewEventListener):
 
     def show_diagnostics_status(self, line_diagnostics):
         self.has_status = True
-        self.view.set_status('lsp_diagnostics', line_diagnostics[0].message)
+        self.view.set_status('code_intel_diagnostics', line_diagnostics[0].message)
 
     def clear_diagnostics_status(self):
-        self.view.erase_status('lsp_diagnostics')
+        self.view.erase_status('code_intel_diagnostics')
         self.has_status = False
 
 
-class LspShowDiagnosticsPanelCommand(sublime_plugin.WindowCommand):
+class CodeIntelShowDiagnosticsPanelCommand(sublime_plugin.WindowCommand):
     def run(self):
         ensure_diagnostics_panel(self.window)
         active_panel = self.window.active_panel()
@@ -291,12 +291,12 @@ def update_diagnostics_panel(window: sublime.Window):
                     relative_file_path = file_path
                 if source_diagnostics:
                     to_render.append(format_diagnostics(relative_file_path, source_diagnostics))
-            panel.run_command("lsp_update_panel", {"characters": "\n".join(to_render)})
+            panel.run_command("code_intel_update_panel", {"characters": "\n".join(to_render)})
             if settings.auto_show_diagnostics_panel and not active_panel:
                 window.run_command("show_panel",
                                    {"panel": "output.diagnostics"})
         else:
-            panel.run_command("lsp_clear_panel")
+            panel.run_command("code_intel_clear_panel")
             if is_active_panel:
                 window.run_command("hide_panel",
                                    {"panel": "output.diagnostics"})

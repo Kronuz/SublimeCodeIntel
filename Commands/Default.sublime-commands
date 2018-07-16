@@ -1,59 +1,59 @@
 [
     {
-        "caption": "Preferences: LSP Settings",
+        "caption": "Preferences: SublimeCodeIntel Settings",
         "command": "edit_settings",
         "args": {
-          "base_file": "${packages}/LSP/LSP.sublime-settings",
-          "default": "// Settings in here override those in \"LSP/LSP.sublime-settings\",\n\n{\n\t$0\n}\n"}
+          "base_file": "${packages}/SublimeCodeIntel/SublimeCodeIntel.sublime-settings",
+          "default": "// Settings in here override those in \"SublimeCodeIntel/SublimeCodeIntel.sublime-settings\",\n\n{\n\t$0\n}\n"}
     },
     {
-        "caption": "LSP: Setup Language Server",
-        "command": "lsp_setup_language_server",
+        "caption": "SublimeCodeIntel: Setup Language Server",
+        "command": "code_intel_setup_language_server",
         "args": {}
     },
     {
-        "caption": "LSP: Enable Language Server Globally",
-        "command": "lsp_enable_language_server_globally",
+        "caption": "SublimeCodeIntel: Enable Language Server Globally",
+        "command": "code_intel_enable_language_server_globally",
         "args": {}
     },
     {
-        "caption": "LSP: Disable Language Server Globally",
-        "command": "lsp_disable_language_server_globally",
+        "caption": "SublimeCodeIntel: Disable Language Server Globally",
+        "command": "code_intel_disable_language_server_globally",
         "args": {}
     },
     {
-        "caption": "LSP: Enable Language Server in Project",
-        "command": "lsp_enable_language_server_in_project",
+        "caption": "SublimeCodeIntel: Enable Language Server in Project",
+        "command": "code_intel_enable_language_server_in_project",
         "args": {}
     },
     {
-        "caption": "LSP: Disable Language Server in Project",
-        "command": "lsp_disable_language_server_in_project",
+        "caption": "SublimeCodeIntel: Disable Language Server in Project",
+        "command": "code_intel_disable_language_server_in_project",
         "args": {}
     },
     {
-    	"caption": "LSP: Format Document",
-    	"command": "lsp_format_document",
-    	"args": {}
-    },
-    {
-        "caption": "LSP: Format Selection",
-        "command": "lsp_format_document_range",
+        "caption": "SublimeCodeIntel: Format Document",
+        "command": "code_intel_format_document",
         "args": {}
     },
     {
-        "caption": "LSP: Restart Servers",
-        "command": "lsp_restart_client",
+        "caption": "SublimeCodeIntel: Format Selection",
+        "command": "code_intel_format_document_range",
         "args": {}
     },
     {
-        "caption": "LSP: Document Symbols",
-        "command": "lsp_document_symbols",
+        "caption": "SublimeCodeIntel: Restart Servers",
+        "command": "code_intel_restart_client",
         "args": {}
     },
     {
-        "caption": "LSP: Show Diagnostics",
-        "command": "lsp_show_diagnostics_panel",
+        "caption": "SublimeCodeIntel: Document Symbols",
+        "command": "code_intel_document_symbols",
+        "args": {}
+    },
+    {
+        "caption": "SublimeCodeIntel: Show Diagnostics",
+        "command": "code_intel_show_diagnostics_panel",
         "args": {}
     },
     {

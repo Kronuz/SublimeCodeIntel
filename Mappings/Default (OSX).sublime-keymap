@@ -1,0 +1,36 @@
+[
+    // Show Code Actions
+    { "keys": ["super+."], "command": "code_intel_code_actions" },
+
+    // Show/Hide Diagnostics Panel
+    { "keys": ["super+alt+m"], "command": "code_intel_show_diagnostics_panel" },
+
+    // Go To Next/Previous Diagnostics - THIS OVERRIDES DEFAULT SUBLIME KEYBINDINGS
+    // { "keys": ["f4"], "command": "next_result" },
+    // { "keys": ["shift+f4"], "command": "prev_result" },
+
+    // Trigger Signature Help
+    { "keys": ["super+alt+space"], "command": "noop", "context": [{ "key": "code_intel.signature_help", "operator": "equal", "operand": 0}] },
+
+    // Move Up/Down in Signature Help
+    { "keys": ["up"], "command": "noop", "context": [{ "key": "code_intel.signature_help", "operator": "equal", "operand": -1 }] },
+    { "keys": ["down"], "command": "noop", "context": [{ "key": "code_intel.signature_help", "operator": "equal", "operand": 1 }] },
+
+     // Find Symbol References
+    { "keys": ["shift+f12"], "command": "code_intel_symbol_references" },
+
+    // Go To Definition
+    // {"keys": ["UNBOUND"], "command": "code_intel_symbol_definition"},
+
+    // Rename Symbol
+    // { "keys": ["UNBOUND"], "command": "code_intel_symbol_rename" },
+
+    // Format Document
+    // {"keys": ["UNBOUND"], "command": "code_intel_format_document"},
+
+    // Format Selection
+    // {"keys": ["UNBOUND"], "command": "code_intel_format_document_range"},
+
+    // Document Symbols
+    // {"keys": ["UNBOUND"], "command": "code_intel_document_symbols"},
+]

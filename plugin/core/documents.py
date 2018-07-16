@@ -135,7 +135,7 @@ def notify_did_open(view: sublime.View):
                 ds = get_document_state(window, view_file)
                 ds.languageId = config.get_language_id(view)
                 if settings.show_view_status:
-                    view.set_status("lsp_clients", config.name)
+                    view.set_status("code_intel_clients", config.name)
                 params = {
                     "textDocument": {
                         "uri": filename_to_uri(view_file),

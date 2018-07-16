@@ -2,11 +2,11 @@
 from .core.protocol import Request
 from .core.url import filename_to_uri
 from .core.clients import client_for_view
-from .core.clients import LspTextCommand
+from .core.clients import CodeIntelTextCommand
 from .core.views import region_to_range
 
 
-class LspFormatDocumentCommand(LspTextCommand):
+class CodeIntelFormatDocumentCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 
@@ -31,11 +31,11 @@ class LspFormatDocumentCommand(LspTextCommand):
                 request, lambda response: self.handle_response(response, pos))
 
     def handle_response(self, response, pos):
-        self.view.run_command('lsp_apply_document_edit',
+        self.view.run_command('code_intel_apply_document_edit',
                               {'changes': response})
 
 
-class LspFormatDocumentRangeCommand(LspTextCommand):
+class CodeIntelFormatDocumentRangeCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 
@@ -62,5 +62,5 @@ class LspFormatDocumentRangeCommand(LspTextCommand):
                 }
             }
             client.send_request(Request.rangeFormatting(params),
-                                lambda response: self.view.run_command('lsp_apply_document_edit',
+                                lambda response: self.view.run_command('code_intel_apply_document_edit',
                                                                        {'changes': response}))

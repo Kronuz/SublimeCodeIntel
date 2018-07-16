@@ -25,7 +25,7 @@ except ImportError:
 clients_by_window = {}  # type: Dict[int, Dict[str, Session]]
 
 
-class LspTextCommand(sublime_plugin.TextCommand):
+class CodeIntelTextCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
         super().__init__(view)
 

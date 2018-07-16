@@ -8,7 +8,7 @@ except ImportError:
 
 
 from .core.clients import client_for_view
-from .core.clients import LspTextCommand
+from .core.clients import CodeIntelTextCommand
 from .core.protocol import Request
 from .core.documents import get_position
 from .core.diagnostics import get_point_diagnostics
@@ -16,7 +16,7 @@ from .core.url import filename_to_uri
 from .core.views import region_to_range
 
 
-class LspCodeActionsCommand(LspTextCommand):
+class CodeIntelCodeActionsCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 

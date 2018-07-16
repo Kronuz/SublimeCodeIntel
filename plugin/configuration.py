@@ -30,7 +30,7 @@ def extract_syntax_name(syntax_file: str) -> str:
 
 def show_enable_config(view: sublime.View, config: ClientConfig):
     syntax = str(view.settings().get("syntax", ""))
-    message = "LSP has found a language server for {}. Run \"Setup Language Server\" to start using it".format(
+    message = "SublimeCodeIntel has found a language server for {}. Run \"Setup Language Server\" to start using it".format(
         extract_syntax_name(syntax)
     )
     window = view.window()
@@ -39,10 +39,10 @@ def show_enable_config(view: sublime.View, config: ClientConfig):
 
 
 def start_view(view: sublime.View):
-    view.run_command('lsp_start_client')
+    view.run_command('code_intel_start_client')
 
 
-class LspEnableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
+class CodeIntelEnableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         available_config = get_scope_client_config(view, client_configs.defaults) or get_global_client_config(view)
@@ -56,7 +56,7 @@ class LspEnableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
         self.window.status_message("No config available to enable")
 
 
-class LspEnableLanguageServerInProjectCommand(sublime_plugin.WindowCommand):
+class CodeIntelEnableLanguageServerInProjectCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
 
@@ -71,7 +71,7 @@ class LspEnableLanguageServerInProjectCommand(sublime_plugin.WindowCommand):
             self.window.status_message("No config available to enable")
 
 
-class LspDisableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
+class CodeIntelDisableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         global_config = get_scope_client_config(view, client_configs.all)
@@ -85,7 +85,7 @@ class LspDisableLanguageServerGloballyCommand(sublime_plugin.WindowCommand):
         self.window.status_message("No config available to disable")
 
 
-class LspDisableLanguageServerInProjectCommand(sublime_plugin.WindowCommand):
+class CodeIntelDisableLanguageServerInProjectCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         global_config = get_scope_client_config(view, client_configs.defaults)
@@ -116,7 +116,7 @@ unsupported_syntax_template = """
 Visit [langserver.org](https://langserver.org) to find out if a language server exists for this language."""
 
 
-class LspSetupLanguageServerCommand(sublime_plugin.WindowCommand):
+class CodeIntelSetupLanguageServerCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         syntax = view.settings().get("syntax")
@@ -135,17 +135,17 @@ class LspSetupLanguageServerCommand(sublime_plugin.WindowCommand):
             view,
             "\n".join([title, content]),
             css='''
-                .lsp_documentation {
+                .code_intel_documentation {
                     margin: 1rem 1rem 0.5rem 1rem;
                     font-family: system;
                 }
-                .lsp_documentation h1,
-                .lsp_documentation p {
+                .code_intel_documentation h1,
+                .code_intel_documentation p {
                     margin: 0 0 0.5rem 0;
                 }
             ''',
             md=True,
-            wrapper_class="lsp_documentation",
+            wrapper_class="code_intel_documentation",
             max_width=800,
             max_height=600,
             on_navigate=self.on_hover_navigate
@@ -153,8 +153,8 @@ class LspSetupLanguageServerCommand(sublime_plugin.WindowCommand):
 
     def on_hover_navigate(self, href):
         if href == "#enable_globally":
-            self.window.run_command("lsp_enable_language_server_globally")
+            self.window.run_command("code_intel_enable_language_server_globally")
         elif href == "#enable_project":
-            self.window.run_command("lsp_enable_language_server_in_project")
+            self.window.run_command("code_intel_enable_language_server_in_project")
         else:
             webbrowser.open_new_tab(href)

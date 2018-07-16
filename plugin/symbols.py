@@ -1,6 +1,6 @@
 
 from .core.protocol import SymbolKind
-from .core.clients import LspTextCommand
+from .core.clients import CodeIntelTextCommand
 from .core.clients import client_for_view
 from .core.protocol import Request, Range
 from .core.url import filename_to_uri
@@ -36,7 +36,7 @@ def format_symbol(item):
     return [label, format_symbol_kind(item.get("kind"))]
 
 
-class LspDocumentSymbolsCommand(LspTextCommand):
+class CodeIntelDocumentSymbolsCommand(CodeIntelTextCommand):
     def __init__(self, view):
         super().__init__(view)
 

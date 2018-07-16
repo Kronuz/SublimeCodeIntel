@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 hidden: true
-scope: output.lsp.references
+scope: output.code_intel.references
 
 contexts:
   main:
@@ -12,9 +12,9 @@ contexts:
     # References to "function" at path\file.py:
     - match: ^(.*)(:)$
       captures:
-        0: meta.references.preamble.lsp
-        1: string.unquoted.lsp
-        2: punctuation.separator.lsp
+        0: meta.references.preamble.code_intel
+        1: string.unquoted.code_intel
+        2: punctuation.separator.code_intel
 
   references-body:
     # Must match the
@@ -25,10 +25,10 @@ contexts:
     #    ◌ /unixpath/file.py 815:1
     - match: ^\s+(\S)\s+((\S.+)\s+(\d+)(?:(:)(\d+))?)$
       captures:
-        0: meta.references.body.lsp
-        1: punctuation.section.path.reference.lsp
-        2: meta.path.reference.lsp
-        3: entity.name.file.lsp
-        4: constant.numeric.integer.decimal.lsp
-        5: punctuation.separator.lsp
-        6: constant.numeric.integer.decimal.lsp
+        0: meta.references.body.code_intel
+        1: punctuation.section.path.reference.code_intel
+        2: meta.path.reference.code_intel
+        3: entity.name.file.code_intel
+        4: constant.numeric.integer.decimal.code_intel
+        5: punctuation.separator.code_intel
+        6: constant.numeric.integer.decimal.code_intel

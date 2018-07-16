@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
 import sublime
-from LSP.plugin.completion import CompletionHandler, CompletionState
-from LSP.plugin.core.settings import client_configs, ClientConfig
-from LSP.plugin.core.clients import add_window_client, remove_window_client
+from SublimeCodeIntel.plugin.completion import CompletionHandler, CompletionState
+from SublimeCodeIntel.plugin.core.settings import client_configs, ClientConfig
+from SublimeCodeIntel.plugin.core.clients import add_window_client, remove_window_client
 from os.path import dirname
 
 

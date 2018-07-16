@@ -21,7 +21,7 @@ def start_server(server_binary_args, working_dir, env):
             startupinfo=si)
 
     except Exception as err:
-        # sublime.status_message("Failed to start LSP server {}".format(str(server_binary_args)))
+        # sublime.status_message("Failed to start SublimeCodeIntel server {}".format(str(server_binary_args)))
         exception_log("Failed to start server", err)
 
 
@@ -31,7 +31,7 @@ def attach_logger(process, stream):
 
 def log_stream(process, stream):
     """
-    Reads any errors from the LSP process.
+    Reads any errors from the SublimeCodeIntel process.
     """
     running = True
     while running:
@@ -50,4 +50,4 @@ def log_stream(process, stream):
             exception_log("Failure reading stream", err)
             return
 
-    debug("LSP stream logger stopped.")
+    debug("SublimeCodeIntel stream logger stopped.")

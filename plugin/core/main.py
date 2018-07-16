@@ -43,7 +43,7 @@ def startup():
     Events.subscribe("view.on_activated_async", initialize_on_open)
     register_clients_unloaded_handler(handle_clients_unloaded)
     if settings.show_status_messages:
-        sublime.status_message("LSP initialized")
+        sublime.status_message("💡 SublimeCodeIntel initialized")
     start_active_views()
 
 
@@ -275,7 +275,7 @@ def handle_message_request(params: dict):
     sublime.message_dialog("\n".join([message, addendum] + titles))
 
 
-class LspRestartClientCommand(sublime_plugin.TextCommand):
+class CodeIntelRestartClientCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
         return is_supported_view(self.view)
 
@@ -284,7 +284,7 @@ class LspRestartClientCommand(sublime_plugin.TextCommand):
         restart_window_clients(window)
 
 
-class LspStartClientCommand(sublime_plugin.TextCommand):
+class CodeIntelStartClientCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
         return is_supported_view(self.view)
 

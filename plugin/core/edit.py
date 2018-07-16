@@ -11,11 +11,11 @@ from .views import range_to_region
 
 def apply_workspace_edit(window, params):
     edit = params.get('edit', dict())
-    window.run_command('lsp_apply_workspace_edit', {'changes': edit.get('changes'),
-                                                    'documentChanges': edit.get('documentChanges')})
+    window.run_command('code_intel_apply_workspace_edit', {'changes': edit.get('changes'),
+                                                          'documentChanges': edit.get('documentChanges')})
 
 
-class LspApplyWorkspaceEditCommand(sublime_plugin.WindowCommand):
+class CodeIntelApplyWorkspaceEditCommand(sublime_plugin.WindowCommand):
     def run(self, changes=None, documentChanges=None):
         # debug('workspace edit', changes)
         documentsChanged = 0
@@ -43,18 +43,18 @@ class LspApplyWorkspaceEditCommand(sublime_plugin.WindowCommand):
             if view.is_loading():
                 # TODO: wait for event instead.
                 sublime.set_timeout_async(
-                    lambda: view.run_command('lsp_apply_document_edit', {'changes': file_changes}),
+                    lambda: view.run_command('code_intel_apply_document_edit', {'changes': file_changes}),
                     500
                 )
             else:
-                view.run_command('lsp_apply_document_edit',
+                view.run_command('code_intel_apply_document_edit',
                                  {'changes': file_changes,
                                   'show_status': False})
         else:
             debug('view not found to apply', path, file_changes)
 
 
-class LspApplyDocumentEditCommand(sublime_plugin.TextCommand):
+class CodeIntelApplyDocumentEditCommand(sublime_plugin.TextCommand):
     def run(self, edit, changes=None, show_status=True):
 
         # Sort changes due to issues with self.view.get_regions
@@ -65,22 +65,22 @@ class LspApplyDocumentEditCommand(sublime_plugin.TextCommand):
         replacements = list(change.get('newText') for change in changes)
 
         # TODO why source.python here?
-        self.view.add_regions('lsp_edit', regions, "source.python")
+        self.view.add_regions('code_intel_edit', regions, "source.python")
 
         index = 0
         last_region_count = len(regions)
         for newText in replacements:
             # refresh updated regions after each edit.
-            updated_regions = self.view.get_regions('lsp_edit')
+            updated_regions = self.view.get_regions('code_intel_edit')
             region = updated_regions[index]  #
             self.apply_change(region, newText, edit)
-            if len(self.view.get_regions('lsp_edit')) == last_region_count:
+            if len(self.view.get_regions('code_intel_edit')) == last_region_count:
                 index += 1  # no regions lost, move to next region.
             else:
                 # current region was removed, don't advance index.
-                last_region_count = len(self.view.get_regions('lsp_edit'))
+                last_region_count = len(self.view.get_regions('code_intel_edit'))
 
-        self.view.erase_regions('lsp_edit')
+        self.view.erase_regions('code_intel_edit')
         if show_status:
             window = self.view.window()
             if window:

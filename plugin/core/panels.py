@@ -7,7 +7,7 @@ OUTPUT_PANEL_SETTINGS = {
     "draw_indent_guides": False,
     "draw_white_space": "None",
     "gutter": False,
-    'is_widget': True,
+    "is_widget": True,
     "line_numbers": False,
     "margin": 3,
     "match_brackets": False,
@@ -26,7 +26,7 @@ def create_output_panel(window: sublime.Window, name: str) -> sublime.View:
     return panel
 
 
-class LspClearPanelCommand(sublime_plugin.TextCommand):
+class CodeIntelClearPanelCommand(sublime_plugin.TextCommand):
     """
     A clear_panel command to clear the error panel.
     """
@@ -35,7 +35,7 @@ class LspClearPanelCommand(sublime_plugin.TextCommand):
         self.view.erase(edit, sublime.Region(0, self.view.size()))
 
 
-class LspUpdatePanelCommand(sublime_plugin.TextCommand):
+class CodeIntelUpdatePanelCommand(sublime_plugin.TextCommand):
     """
     A update_panel command to update the error panel with new text.
     """
