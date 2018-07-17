@@ -121,6 +121,7 @@ class StdioTransport(Transport):
     def start(self, on_receive, on_closed):
         self.on_receive = on_receive
         self.on_closed = on_closed
+        self.lock = threading.Lock()
         self.stdout_thread = threading.Thread(target=self.read_stdout)
         self.stdout_thread.start()
 
@@ -164,8 +165,9 @@ class StdioTransport(Transport):
     def send(self, message):
         if self.process:
             try:
-                self.process.stdin.write(bytes(message, 'UTF-8'))
-                self.process.stdin.flush()
+                with self.lock:
+                    self.process.stdin.write(bytes(message, 'UTF-8'))
+                    self.process.stdin.flush()
             except (BrokenPipeError, OSError) as err:
                 exception_log("Failure writing to stdout", err)
                 self.close()
