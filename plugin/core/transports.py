@@ -136,13 +136,16 @@ class StdioTransport(Transport):
         ContentLengthHeader = b"Content-Length: "
 
         running = True
-        while running:
-            running = self.process.poll() is None
+        process = self.process
+        while running and process:
+            running = process.poll() is None
 
             try:
                 content_length = 0
-                while self.process:
-                    header = self.process.stdout.readline()
+                while True:
+                    if self.process is not process:
+                        raise IOError("Process closed!")
+                    header = process.stdout.readline()
                     if header:
                         header = header.strip()
                     if not header:
@@ -150,8 +153,8 @@ class StdioTransport(Transport):
                     if header.startswith(ContentLengthHeader):
                         content_length = int(header[len(ContentLengthHeader):])
 
-                if (content_length > 0):
-                    content = self.process.stdout.read(content_length)
+                if content_length > 0:
+                    content = process.stdout.read(content_length)
 
                     self.on_receive(content.decode("UTF-8"))
 
@@ -163,11 +166,12 @@ class StdioTransport(Transport):
         debug("LSP stdout process ended.")
 
     def send(self, message):
-        if self.process:
+        process = self.process
+        if process:
             try:
                 with self.lock:
-                    self.process.stdin.write(bytes(message, 'UTF-8'))
-                    self.process.stdin.flush()
+                    process.stdin.write(bytes(message, 'UTF-8'))
+                    process.stdin.flush()
             except (BrokenPipeError, OSError) as err:
                 exception_log("Failure writing to stdout", err)
                 self.close()
