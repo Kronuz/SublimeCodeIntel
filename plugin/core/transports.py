@@ -35,7 +35,7 @@ def start_tcp_transport(port):
         try:
             sock = socket.create_connection((host, port))
             return TCPTransport(sock)
-        except ConnectionRefusedError as e:
+        except ConnectionRefusedError:
             pass
 
     # process.kill()
