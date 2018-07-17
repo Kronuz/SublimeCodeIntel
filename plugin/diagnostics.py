@@ -274,6 +274,8 @@ def update_diagnostics_panel(window: sublime.Window):
     base_dir = get_project_path(window)
 
     panel = ensure_diagnostics_panel(window)
+    if not panel and not window.is_valid():
+        return
     assert panel, "must have a panel now!"
 
     diagnostics_by_file = get_window_diagnostics(window)
