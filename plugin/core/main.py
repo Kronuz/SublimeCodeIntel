@@ -55,6 +55,7 @@ def shutdown():
 def start_active_views():
     window = sublime.active_window()
     if window:
+        window_id = window.id()
         views = list()  # type: List[sublime.View]
         num_groups = window.num_groups()
         for group in range(0, num_groups):
@@ -71,7 +72,7 @@ def start_active_views():
             initialize_on_open(first_view)
             if len(views) > 0:
                 for view in views:
-                    open_after_initialize_by_window[window.id()].append(view)
+                    open_after_initialize_by_window.setdefault(window_id, []).append(view)
 
 
 TextDocumentSyncKindNone = 0
@@ -94,13 +95,13 @@ def initialize_on_open(view: sublime.View):
     if window_configs(window):
         unload_old_clients(window)
 
+    window_id = window.id()
     global didopen_after_initialize
-    open_after_initialize_by_window[window.id()] = []
     config = config_for_scope(view)
     if config:
         if config.enabled:
             if not is_ready_window_config(window, config.name):
-                open_after_initialize_by_window[window.id()].append(view)
+                open_after_initialize_by_window.setdefault(window_id, []).append(view)
                 start_window_client(view, window, config)
         else:
             debug(config.name, 'is not enabled')
@@ -170,12 +171,11 @@ def handle_session_started(session, window, project_path, config):
         }
         client.send_notification(Notification.didChangeConfiguration(configParams))
 
-    for view in open_after_initialize_by_window[window.id()]:
+    for view in open_after_initialize_by_window.pop(window.id(), []):
         notify_did_open(view)
 
     if settings.show_status_messages:
         window.status_message("{} initialized".format(config.name))
-    del open_after_initialize_by_window[window.id()]
 
 
 def start_client(window: sublime.Window, project_path: str, config: ClientConfig):
