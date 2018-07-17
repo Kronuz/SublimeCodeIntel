@@ -1,0 +1,81 @@
+ ____        _     _ _                 ____          _      ___       _       _
+/ ___| _   _| |__ | (_)_ __ ___   ___ / ___|___   __| | ___|_ _|_ __ | |_ ___| |
+\___ \| | | | '_ \| | | '_ ` _ \ / _ \ |   / _ \ / _` |/ _ \| || '_ \| __/ _ \ |
+ ___) | |_| | |_) | | | | | | | |  __/ |__| (_) | (_| |  __/| || | | | ||  __/ |
+|____/ \__,_|_.__/|_|_|_| |_| |_|\___|\____\___/ \__,_|\___|___|_| |_|\__\___|_|
+A full-featured code intelligence and smart autocomplete engine for Sublime Text
+
+
++-------------------------------- HELP WANTED ---------------------------------+
+|     Maintaining this project is hard, I do it in my spare time, but I'm      |
+|     basically all alone. If anyone is interested in contributing, please     |
+|     contact me. I really need much more help maintaining SublimeCodeIntel    |
+|                                                                              |
+|                       Follow me on twitter @germbravo                        |
+|           You can find us at #sublimecodeintel on irc.freenode.net           |
+|                                                                              |
+|             If you like SublimeCodeIntel, please make a donation:            |
+|   https://www.sublimecodeintel.com/docs/welcome/#donate-to-sublimecodeintel  |
++------------------------------------------------------------------------------+
+
+
+
+💡SublimeCodeIntel
+==================
+
+A full-featured code intelligence and smart autocomplete engine for Sublime Text.
+
+Supports the following languages through plugins:
+
+CSS-CodeIntel -> CSS/SCSS/Sass/Less
+Cpp-CodeIntel -> C/C++/Objective-C/Objective-C++
+HTML-CodeIntel -> HTML
+JSON-CodeIntel -> JSON/JSONC
+JavaScript-CodeIntel -> JavaScript/TypeScript/Node.js
+Markdown-CodeIntel -> Markdown
+OCaml-CodeIntel -> OCaml
+PHP-CodeIntel -> PHP
+Python-CodeIntel -> Python2/Python3
+Rust-CodeIntel -> Rust
+YAML-CodeIntel -> YAML
+
+Provides the following features:
+
+* Jump to Symbol Definition - Jump to the file and line of the definition of a symbol.
+* Imports autocomplete - Shows autocomplete with the available modules/symbols in real time.
+* Function Call tooltips - Displays information in the status bar about the working function.
+
+
++ Shortcuts for jump to definition have changed:
+
+  For Mac OS X:
+    * Jump to definition = ``Control+Click``
+    * Jump to definition = ``Control+Command+Alt+Up``
+    * Go back = ``Control+Command+Alt+Left``
+    * Manual CodeIntel = ``Control+Shift+space``
+
+  For Linux:
+    * Jump to definition = ``Super+Click``
+    * Jump to definition = ``Control+Super+Alt+Up``
+    * Go back = ``Control+Super+Alt+Left``
+    * Manual CodeIntel = ``Control+Shift+space``
+
+  For Windows:
+    * Jump to definition = ``Alt+Click``
+    * Jump to definition = ``Control+Windows+Alt+Up``
+    * Go back = ``Control+Windows+Alt+Left``
+    * Manual CodeIntel = ``Control+Shift+space``
+
+
+
+Release Notes
+-------------
+
+Please take the time to read the documentation:
+
+* Online - https://www.sublimecodeintel.com
+* Git - https://github.com/SublimeCodeIntel/SublimeCodeIntel
+
+In case of trouble, please read the Troubleshooting section in the README.
+
+** Restart Sublime Text after reading all this **
