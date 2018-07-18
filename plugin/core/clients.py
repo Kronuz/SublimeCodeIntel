@@ -195,12 +195,11 @@ def check_window_unloaded():
 
 
 def unload_window_sessions(window_id: int):
-    if window_id in clients_by_window:
-        window_configs = clients_by_window[window_id]
-        for config_name, session in window_configs.items():
-            window_configs[config_name].state = ClientStates.STOPPING
-            debug("unloading session", config_name)
-            session.end()
+    window_configs = clients_by_window.pop(window_id, {})
+    for config_name, session in window_configs.items():
+        window_configs[config_name].state = ClientStates.STOPPING
+        debug("unloading session", config_name)
+        session.end()
 
 
 def unload_old_clients(window: sublime.Window):
