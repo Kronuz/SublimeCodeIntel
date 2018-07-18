@@ -1,4 +1,4 @@
-from .logging import debug, exception_log, server_log
+from .logging import debug, exception_log
 import subprocess
 import os
 import threading
@@ -25,29 +25,28 @@ def start_server(server_binary_args, working_dir, env):
         exception_log("Failed to start server", err)
 
 
-def attach_logger(process, stream):
-    threading.Thread(target=lambda: log_stream(process, stream)).start()
+def attach_logger(process, stream, server_log):
+    threading.Thread(target=log_stream, args=(process, stream, server_log)).start()
 
 
-def log_stream(process, stream):
+def log_stream(process, stream, server_log):
     """
     Reads any errors from the SublimeCodeIntel process.
     """
-    running = True
-    while running:
-        running = process.poll() is None
-
+    while process and process.poll() is None:
         try:
             content = stream.readline()
             if not content:
-                break
-            try:
-                decoded = content.decode("UTF-8")
-            except UnicodeDecodeError:
-                decoded = content
-            server_log(decoded.strip())
-        except IOError as err:
+                raise IOError("Closed stream")
+            if server_log:
+                content = content.strip()
+                try:
+                    decoded = content.decode("UTF-8")
+                except UnicodeDecodeError:
+                    decoded = content
+                server_log(decoded)
+        except (BrokenPipeError, OSError, IOError) as err:
             exception_log("Failure reading stream", err)
-            return
+            break
 
-    debug("SublimeCodeIntel stream logger stopped.")
+    debug("SublimeCodeIntel stream logger thread stopped.")

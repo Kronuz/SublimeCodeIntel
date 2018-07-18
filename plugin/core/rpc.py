@@ -3,6 +3,7 @@ import socket
 import time
 from .transports import TCPTransport, StdioTransport
 from .process import attach_logger
+from .logging import server_log
 
 try:
     from typing import Any, List, Dict, Tuple, Callable, Optional
@@ -35,8 +36,8 @@ def format_request(payload: 'Dict[str, Any]'):
 
 
 def attach_tcp_client(tcp_port, process, settings: Settings):
-    if settings.log_stderr:
-        attach_logger(process, process.stdout)
+    attach_logger(process, process.stdout, server_log if settings.log_stderr else None)
+    attach_logger(process, process.stderr, server_log if settings.log_stderr else None)
 
     host = "localhost"
     start_time = time.time()
@@ -50,7 +51,7 @@ def attach_tcp_client(tcp_port, process, settings: Settings):
             client = Client(transport, settings)
             client.set_transport_failure_handler(lambda: try_terminate_process(process))
             return client
-        except ConnectionRefusedError as e:
+        except ConnectionRefusedError:
             pass
 
     process.kill()
@@ -58,11 +59,11 @@ def attach_tcp_client(tcp_port, process, settings: Settings):
 
 
 def attach_stdio_client(process, settings: Settings):
+    attach_logger(process, process.stderr, server_log if settings.log_stderr else None)
+
     transport = StdioTransport(process)
 
     # TODO: process owner can take care of this outside client?
-    if settings.log_stderr:
-        attach_logger(process, process.stderr)
     client = Client(transport, settings)
     client.set_transport_failure_handler(lambda: try_terminate_process(process))
     return client
