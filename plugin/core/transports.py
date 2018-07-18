@@ -64,10 +64,10 @@ class TCPTransport(Transport):
         self.write_thread.start()
 
     def end(self):
-        self.running = False
         self.close()
 
     def close(self):
+        self.running = False
         self.queue.put(None)
         socket = self.socket
         if socket:
@@ -167,10 +167,10 @@ class StdioTransport(Transport):
         self.stdin_thread.start()
 
     def end(self):
-        self.running = False
         self.close()
 
     def close(self):
+        self.running = False
         self.queue.put(None)
         process = self.process
         if process:
