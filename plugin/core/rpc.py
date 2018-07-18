@@ -128,14 +128,13 @@ class Client(object):
             self._crash_handler()
 
     def send_payload(self, payload):
-        if self.transport:
-            try:
-                message = format_request(payload)
-                self.transport.send(message)
-            except Exception as err:
-                self._error_display_handler("Failure sending LSP server message, exiting")
-                exception_log("Failure writing payload", err)
-                self.handle_transport_failure()
+        try:
+            message = format_request(payload)
+            self.transport.send(message)
+        except Exception as err:
+            self._error_display_handler("Failure sending LSP server message, exiting")
+            exception_log("Failure writing payload", err)
+            self.handle_transport_failure()
 
     def receive_payload(self, message):
         payload = None
