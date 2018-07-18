@@ -246,8 +246,7 @@ def start_window_client(view: sublime.View, window: sublime.Window, config: Clie
 
 def handle_server_crash(window: sublime.Window, config: ClientConfig):
     msg = "Language server {} has crashed, do you want to restart it?".format(config.name)
-    result = sublime.ok_cancel_dialog(msg, ok_title="Restart")
-    if result == sublime.DIALOG_YES:
+    if sublime.ok_cancel_dialog(msg, ok_title="Restart"):
         restart_window_clients(window)
 
 
@@ -255,6 +254,7 @@ restarting_window_ids = set()  # type: Set[int]
 
 
 def restart_window_clients(window: sublime.Window):
+    debug('Restarting clients for window {}'.format(window.id()))
     clear_document_states(window)
     restarting_window_ids.add(window.id())
     unload_window_sessions(window.id())
