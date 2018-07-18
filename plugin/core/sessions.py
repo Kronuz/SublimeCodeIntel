@@ -171,12 +171,15 @@ class Session(object):
 
     def end(self):
         self.state = ClientStates.STOPPING
+        # Some servers (Rust) might die before shutdown ends, but we still
+        # don't want the message about re-launching server. Flag as exiting.
+        self.client.exiting = True
         self.client.send_request(
             Request.shutdown(),
             lambda result: self._handle_shutdown_result(result))
 
     def _handle_shutdown_result(self, result):
-        self.client.send_notification(Notification.exit())
+        self.client.exit()
         self.client = None
         self.capabilities = dict()
         if self._on_ended:

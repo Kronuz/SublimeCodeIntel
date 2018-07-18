@@ -4,8 +4,7 @@ from abc import ABCMeta, abstractmethod
 import threading
 import time
 import socket
-from .logging import exception_log, server_log, debug
-
+from .logging import exception_log, debug
 
 CONTENT_LENGTH_RE = re.compile(br'Content-Length:\s*(\d+)', re.IGNORECASE)
 TCP_CONNECT_TIMEOUT = 5
@@ -18,6 +17,10 @@ class Transport(object, metaclass=ABCMeta):
 
     @abstractmethod
     def start(self, on_receive, on_closed):
+        pass
+
+    @abstractmethod
+    def end(self):
         pass
 
     @abstractmethod
@@ -48,8 +51,10 @@ def start_tcp_transport(port):
 class TCPTransport(Transport):
     def __init__(self, socket):
         self.socket = socket
+        self.running = None
 
     def start(self, on_receive, on_closed):
+        self.running = True
         self.on_receive = on_receive
         self.on_closed = on_closed
         self.queue = Queue()
@@ -58,27 +63,32 @@ class TCPTransport(Transport):
         self.write_thread = threading.Thread(target=self.write_socket)
         self.write_thread.start()
 
+    def end(self):
+        self.running = False
+        self.close()
+
     def close(self):
         self.queue.put(None)
         socket = self.socket
         if socket:
             socket.close()
-        self.socket = None
-        self.on_closed()
+            self.socket = None
+            self.on_closed()
 
     def read_socket(self):
         remaining_data = b""
         read_state = STATE_HEADERS
         content_length = 0
         socket = self.socket
-        while socket:
+        while self.running and socket:
             try:
                 if self.socket is not socket:
                     raise IOError("Closed socket")
                 received_data = socket.recv(4096)
             except Exception as err:
-                exception_log("Failure reading from socket", err)
-                self.close()
+                if self.running:
+                    self.close()
+                    exception_log("Failure reading from socket", err)
                 break
 
             if not received_data:
@@ -115,9 +125,11 @@ class TCPTransport(Transport):
                         is_incomplete = True
                         remaining_data = data
 
+        debug("socket read thread ended.")
+
     def write_socket(self):
         socket = self.socket
-        while socket:
+        while self.running and socket:
             message = self.queue.get()
             if message is None:
                 self.close()
@@ -128,11 +140,12 @@ class TCPTransport(Transport):
                 debug('socket send')
                 socket.sendall(bytes(message, 'UTF-8'))
             except Exception as err:
-                self.close()
-                exception_log("Failure writing to stdin", err)
+                if self.running:
+                    self.close()
+                    exception_log("Failure writing to stdin", err)
                 break
 
-        debug("SublimeCodeIntel stdin thread ended.")
+        debug("socket write thread ended.")
 
     def send(self, message):
         self.queue.put(message)
@@ -141,8 +154,10 @@ class TCPTransport(Transport):
 class StdioTransport(Transport):
     def __init__(self, process):
         self.process = process
+        self.running = None
 
     def start(self, on_receive, on_closed):
+        self.running = True
         self.on_receive = on_receive
         self.on_closed = on_closed
         self.queue = Queue()
@@ -151,21 +166,25 @@ class StdioTransport(Transport):
         self.stdin_thread = threading.Thread(target=self.write_stdin)
         self.stdin_thread.start()
 
+    def end(self):
+        self.running = False
+        self.close()
+
     def close(self):
         self.queue.put(None)
         process = self.process
         if process:
             process.stdin.close()
             process.stdout.close()
-        self.process = None
-        self.on_closed()
+            self.process = None
+            self.on_closed()
 
     def read_stdout(self):
         """
         Reads JSON responses from process and dispatch them to response_handler
         """
         process = self.process
-        while process and process.poll() is None:
+        while self.running and process and process.poll() is None:
             try:
                 content_length = 0
 
@@ -189,17 +208,18 @@ class StdioTransport(Transport):
                 content = process.stdout.read(content_length)
 
             except Exception as err:
-                self.close()
-                exception_log("Failure reading stdout", err)
+                if self.running:
+                    self.close()
+                    exception_log("Failure reading stdout", err)
                 break
 
             self.on_receive(content.decode("UTF-8"))
 
-        debug("SublimeCodeIntel stdout thread ended.")
+        debug("stdout thread ended.")
 
     def write_stdin(self):
         process = self.process
-        while process and process.poll() is None:
+        while self.running and process and process.poll() is None:
             message = self.queue.get()
             if message is None:
                 self.close()
@@ -209,11 +229,12 @@ class StdioTransport(Transport):
                 process.stdin.write(message)
                 process.stdin.flush()
             except Exception as err:
-                self.close()
-                exception_log("Failure writing to stdin", err)
+                if self.running:
+                    self.close()
+                    exception_log("Failure writing to stdin", err)
                 break
 
-        debug("SublimeCodeIntel stdin thread ended.")
+        debug("stdin thread ended.")
 
     def send(self, message):
         self.queue.put(message)

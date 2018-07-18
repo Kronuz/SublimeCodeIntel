@@ -111,6 +111,7 @@ class Client(object):
     def exit(self):
         self.exiting = True
         self.send_notification(Notification.exit())
+        self.transport.end()
 
     def set_crash_handler(self, handler: 'Callable'):
         self._crash_handler = handler
