@@ -57,7 +57,7 @@
         "args": {}
     },
     {
-        "caption": "LSP: Rename Symbol",
-        "command": "lsp_symbol_rename"
+        "caption": "SublimeCodeIntel: Rename Symbol",
+        "command": "code_intel_symbol_rename"
     }
 ]
