@@ -29,9 +29,6 @@ def create_references_panel(window: sublime.Window):
 
 
 class CodeIntelSymbolReferencesCommand(CodeIntelTextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_enabled(self, event=None):
         if self.has_client_with_capability('referencesProvider'):
             return is_at_word(self.view, event)

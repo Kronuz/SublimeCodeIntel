@@ -26,9 +26,6 @@ clients_by_window = {}  # type: Dict[int, Dict[str, Session]]
 
 
 class CodeIntelTextCommand(sublime_plugin.TextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_visible(self, event=None):
         return is_supported_view(self.view)
 

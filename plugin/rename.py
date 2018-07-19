@@ -31,9 +31,6 @@ class RenameSymbolInputHandler(sublime_plugin.TextInputHandler):
 
 
 class CodeIntelSymbolRenameCommand(CodeIntelTextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_enabled(self, event=None):
         # TODO: check what kind of scope we're in.
         if self.has_client_with_capability('renameProvider'):

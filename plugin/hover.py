@@ -30,9 +30,6 @@ class HoverHandler(sublime_plugin.ViewEventListener):
 
 
 class CodeIntelHoverCommand(CodeIntelTextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_likely_at_symbol(self, point):
         word_at_sel = self.view.classify(point)
         return word_at_sel & SUBLIME_WORD_MASK and not self.view.match_selector(point, NO_HOVER_SCOPES)

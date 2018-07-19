@@ -7,9 +7,6 @@ from .core.views import region_to_range
 
 
 class CodeIntelFormatDocumentCommand(CodeIntelTextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_enabled(self, event=None):
         return self.has_client_with_capability('documentFormattingProvider')
 
@@ -36,9 +33,6 @@ class CodeIntelFormatDocumentCommand(CodeIntelTextCommand):
 
 
 class CodeIntelFormatDocumentRangeCommand(CodeIntelTextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-
     def is_enabled(self, event=None):
         if self.has_client_with_capability('documentRangeFormattingProvider'):
             if len(self.view.sel()) == 1:
