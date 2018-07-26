@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import os
 
-from .logging import debug
+from .logging import debug, printf
 from .configurations import config_for_scope, is_supported_view
 from .workspace import get_project_path
 from .types import ClientStates
@@ -122,6 +122,10 @@ def _session_for_view_and_window(view: sublime.View, window: 'Optional[sublime.W
     if not window:
         debug("no window for view", view.file_name())
         return None
+
+    if view.size() > 50000:
+        printf("file is too big, ignoring!")
+        return False
 
     config = config_for_scope(view)
     if not config:
