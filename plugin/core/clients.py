@@ -123,7 +123,7 @@ def _session_for_view_and_window(view: sublime.View, window: 'Optional[sublime.W
         debug("no window for view", view.file_name())
         return None
 
-    if view.size() > 50000:
+    if view.size() > 1000000:
         printf("file is too big, ignoring!")
         return False
 
